@@ -1,9 +1,15 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const { register } = require("./controllers/authController");
+const { register, login } = require("./controllers/authController");
 require('dotenv').config();
-
+const bodyParser = require('body-parser')
+const auth=require("./routes/auth");
 const app = express();
+
+app.use(bodyParser.urlencoded({extended:false}));
+app.use(bodyParser.json())
+
+
 const uri = process.env.MONGO_URL;
 mongoose.connect(uri).then(() => {
     console.log('Db connection successful');
@@ -12,7 +18,7 @@ mongoose.connect(uri).then(() => {
   });
 
 
-app.get("/addUser", register);
+app.use("/api",auth);
 
 
 app.listen("8080", () => {

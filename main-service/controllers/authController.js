@@ -10,20 +10,29 @@ const generateApiKey = () => {
 };
 
 const register = async (req, res) => {
-    const { first_name, last_name, email, password_hash } = { ...req.body };
+  try{
+
+    const { first_name, last_name, email, password_hash ,user_name} = { ...req.body };
+    if(!first_name||!last_name || !email || !password_hash || !user_name)
+    {
+      throw err;
+    }
   const api_key = generateApiKey();
 
-  const user = new User({ first_name, last_name, email, password_hash, api_key });
+  const user = new User({ first_name, last_name, email, password_hash, api_key ,user_name});
   await user.save();
 
   res.status(201).json({ message: 'User registered successfully', api_key });
+  }catch(err){
+    res.json(err.errmsg);
+  }
 };
 
 const login = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password_hash } = req.body;
   const user = await User.findOne({ email });
 
-  if (user && bcrypt.compareSync(password, user.password_hash)) {
+  if (user && bcrypt.compareSync(password_hash, user.password_hash)) {
       const token = createSecretToken(user._id);
     res.json({ token });
   } else {
